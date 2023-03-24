@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
                               fontSize: 30, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      for (ToDo todoo in todosList)
+                      for (ToDo todoo in _foundTodo.reversed)
                         ToDoItem(
                           todo: todoo,
                           onToDoChange: () {
@@ -93,21 +93,24 @@ class _HomeState extends State<Home> {
               children: [
                 Expanded(
                   child: Container(
-                    margin: const EdgeInsets.only(left: 20, bottom: 20, right: 20),
+                    margin:
+                        const EdgeInsets.only(left: 20, bottom: 20, right: 20),
                     decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                       boxShadow: [BoxShadow(
-                        color: tdBlue,
-                        blurRadius: 5,
-                        offset: Offset(0, 0),
-                      ),
-                    ]),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: tdBlue,
+                            blurRadius: 5,
+                            offset: Offset(0, 0),
+                          ),
+                        ]),
                     child: TextField(
                       controller: _todoController,
                       // add an item text field
                       decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                         border: InputBorder.none,
                         hintText: 'Add an item',
                         hintStyle: TextStyle(color: tdBlack),
@@ -119,17 +122,17 @@ class _HomeState extends State<Home> {
                   margin: const EdgeInsets.only(bottom: 20, right: 20),
                   // borderRadius: BorderRadius.circular(10),
                   child: ElevatedButton(
-                    onPressed: () {
-                      addToDoItem(_todoController.text);
-                    },
-                    child: const Icon(Icons.add),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: tdBlue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      padding: const EdgeInsets.all(15),
-                      minimumSize: const Size(55, 55),
-                    )
-                  ),
+                      onPressed: () {
+                        addToDoItem(_todoController.text);
+                      },
+                      child: const Icon(Icons.add),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: tdBlue,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.all(15),
+                        minimumSize: const Size(55, 55),
+                      )),
                 ),
               ],
             ),
@@ -138,29 +141,40 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-void addToDoItem(String toDo) {
-  setState(() {
-    todosList.add(ToDo(id: DateTime.now().microsecondsSinceEpoch.toString(),
-    todoText: toDo,));
-  });
-  _todoController.clear();
-}
-}
 
+  void addToDoItem(String toDo) {
+    setState(() {
+      todosList.add(ToDo(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        todoText: toDo,
+      ));
+    });
+    _todoController.clear();
+  }
 
-class SearchBox extends StatelessWidget {
-  const SearchBox({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  void runSearch(String enteredKeyword) {
+    List<ToDo> results = [];
+    if (enteredKeyword.isEmpty) {
+      results = todosList;
+    } else {
+      results = todosList
+          .where((todo) => todo.todoText
+              .toLowerCase()
+              .contains(enteredKeyword.toLowerCase()))
+          .toList();
+    }
+    setState(() {
+      _foundTodo = results;
+    });
+  }
+  Widget SearchBox() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(40)),
-      child: const TextField(
-        decoration: InputDecoration(
+      child: TextField(
+        onChanged: (value) => runSearch(value),
+        decoration: const InputDecoration(
             contentPadding: EdgeInsets.all(0),
             prefixIcon: Icon(
               Icons.search,
@@ -175,3 +189,4 @@ class SearchBox extends StatelessWidget {
     );
   }
 }
+
